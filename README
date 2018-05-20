@@ -1,0 +1,234 @@
+Blockchain API
+
+By: Gabe Salac
+
+A RESTful web service API for a simple Blockchain implementation. This will simulating trading a form of cryptocurrency.
+
+API Design Overview
+  - all data sent to and from the API must be and will be in JSON format with the Content-Type application/json.
+  - all requests to the Web Service API must include all information necessary to complete the request; the api does not use the Flask session object to maintain state between requests.
+  ------------------------------+--------+-------
+  RESOURCE                      | METHOD | RESULT
+  ------------------------------+--------+-------
+  /chain                        | GET    | Retrieve the entire blockchain and its length
+                                | PUT    | -
+                                | POST   | -
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /transactions                 | GET    | Retrieve the current list of verified transactions
+                                | PUT    | -
+                                | POST   | -
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /transactions/generate        | GET    | -
+                                | PUT    | -
+                                | POST   | Create a transaction and sign using the sender's private key and generate a signature
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /transactions/new             | GET    | -
+                                | PUT    | -
+                                | POST   | Add a verified transaction to the list of transactions
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /mine                         | GET    | Do the proof of work for the current block and add it to the chain and broadcast the new block and its nonce to the rest of the nodes in the network
+                                | PUT    | -
+                                | POST   | -
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /nodes/get                    | GET    | Retrieve the nodes in the network
+                                | PUT    | -
+                                | POST   | -
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /nodes/resolve                | GET    | Resolve any conflicts with the network using the longest chain rule
+                                | PUT    | -
+                                | POST   | -
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /nodes/register               | GET    | -
+                                | PUT    | -
+                                | POST   | Add a node to the network
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /add_block                    | GET    | -
+                                | PUT    | -
+                                | POST   | Add the block that has been announced to it by first verifying the nonce is correct
+                                | DELETE | -
+  ------------------------------+--------+-------
+  /add_transaction              | GET    | -
+                                | PUT    | -
+                                | POST   | Add the transaction to the blockchain list
+                                | DELETE | -
+API Documentation
+
+Features
+- All transactions are signed by the sender using their private key and verified by the chain.
+- Verified transactions are then put into the blockchain list of transactions.
+- Transactions are broadcasted to the miners.
+- Miners can mine transactions with a difficulty of 4 beginning zeroes.
+- Miners are rewarded with 10 fake cryptocurrency.
+- Once miners are done, they can broadcast the new block to the other peers in the network.
+- In the case of spoofed blocks, the longest chain rule is applied to replace the chain with the longest chain in the network.
+
+Requirements:
+-foreman
+-Python 3.6
+-pycrypto
+-flask
+-flask-cors
+
+
+To Execute:
+```
+foreman start
+```
+
+to manually asign port numbers:
+```
+python3 blockchain.py <portnumber>
+```
+Example;
+```
+python3 blockchain.py 5000
+```
+
+Once executed using Foreman, it will launch three instances of the API, running on port 5001, 5002, and 5003
+
+Use Postman or Curl to send HTTP Post and Get requests to the API.
+All post requests must be sent in JSON.
+To test there are there are 3 pairs of RSA public and private keys are provided in the user files to simulate 3 users.
+In this example, the public key is also used as the coin address.
+
+Examples:
+# get the chain
+/chain
+
+result:
+{
+    "blockchain": [
+        {
+            "Hash": "99c715d6def29a0e9992874521118f9b6727f14eecfd5c5cea6f01a4939ad20c",
+            "Nonce": 0,
+            "Previous Hash": "0",
+            "Timestamp": "2018-05-19 18:53",
+            "Transaction": []
+        }
+    ],
+    "length": 1
+}
+
+# generate and sign a transaction
+/transactions/generate
+
+result:
+{
+    "signature": "913ee7bbaf51d4e8233a60acc4081f99d54085abcbd81fb046777b2f86c9c113c56eef97c5ed2f7734919f1a759f8613fa2ff22d3fcfda317329b33afcbfdd431f3c05454dd269d1150a0c84afb6196af6f4b8666c9fe13c886347011b1d43f57e93d8c5d4ec78cf28eb4194e526dbf6c808895f038709990f77089113213750",
+    "transaction": {
+        "amount": 10,
+        "receiver_address": "30819f300d06092a864886f70d010101050003818d0030818902818100a6ad9a53fcc56d18757e5d46f9b484e75a60064265b1255b4fa1e4f4c99fa895c4332d9ea7071166f9e05214a144edc5ee95b3a080d69d24f9601d85be99dc35d7c04d3860d236b8f577177bed9d31e964ccd83905c6f8cb7c12d9c6dbfcbd3aabc528f7b36f9b13831d578c9053f67b4c2fc415783641adc9ac5239a42bc39b0203010001",
+        "sender_address": "30819f300d06092a864886f70d010101050003818d0030818902818100b0fb95698e65f51ad751cd12e045b12ec3709e3abaf23e16126c6af391ac84452ab7468937304fc06c37f88c2c0d71bfed06498716c53db029a90f91b1df061ffe272ecee3355d415d66a7f847bb6b0299e57c831d979b250b2ce8af78d7b80f73c2334dc307a9e20e685196b9fa1a0c804ba25dc821835cd1c2525412e715590203010001"
+    }
+}
+
+# Verify and add a transaction
+/transactions/add
+
+
+
+# Get a list of current transactions
+/transactions
+
+result:
+{
+    "transactions": [
+        {
+            "amount": 10,
+            "receiver_address": "30819f300d06092a864886f70d010101050003818d0030818902818100a6ad9a53fcc56d18757e5d46f9b484e75a60064265b1255b4fa1e4f4c99fa895c4332d9ea7071166f9e05214a144edc5ee95b3a080d69d24f9601d85be99dc35d7c04d3860d236b8f577177bed9d31e964ccd83905c6f8cb7c12d9c6dbfcbd3aabc528f7b36f9b13831d578c9053f67b4c2fc415783641adc9ac5239a42bc39b0203010001",
+            "sender_address": "30819f300d06092a864886f70d010101050003818d0030818902818100b0fb95698e65f51ad751cd12e045b12ec3709e3abaf23e16126c6af391ac84452ab7468937304fc06c37f88c2c0d71bfed06498716c53db029a90f91b1df061ffe272ecee3355d415d66a7f847bb6b0299e57c831d979b250b2ce8af78d7b80f73c2334dc307a9e20e685196b9fa1a0c804ba25dc821835cd1c2525412e715590203010001"
+        },
+    ]
+}
+
+# add a node to the network
+/nodes/register
+
+Post:
+{
+  "nodes": "http://127.0.0.1:5003"
+}
+
+result:
+{
+    "msg": "New nodes have been added",
+    "total_nodes": [
+        "127.0.0.1:5003"
+    ]
+}
+
+# view nodes in the network
+/nodes/get
+
+result:
+{
+    "nodes": [
+        "127.0.0.1:5003"
+    ]
+}
+# resolve using the longest chain rule
+/nodes/resolve
+
+{
+    "chain": [
+        {
+            "Hash": "19d6a9f593d8ab5f8434d211047f68af9bbb9130b76f33c87946fb3946f80577",
+            "Nonce": 0,
+            "Previous Hash": "0",
+            "Timestamp": "2018-05-19 19:59",
+            "Transaction": []
+        },
+        {
+            "Hash": "367affd48667841bcc4e889dadf2955d6e69785efeddb53ee73ad58145e13d74",
+            "Nonce": 86354,
+            "Previous Hash": "19d6a9f593d8ab5f8434d211047f68af9bbb9130b76f33c87946fb3946f80577",
+            "Timestamp": "2018-05-19 20:00",
+            "Transaction": [
+                {
+                    "amount": 10,
+                    "receiver_address": "30819f300d06092a864886f70d010101050003818d0030818902818100a6ad9a53fcc56d18757e5d46f9b484e75a60064265b1255b4fa1e4f4c99fa895c4332d9ea7071166f9e05214a144edc5ee95b3a080d69d24f9601d85be99dc35d7c04d3860d236b8f577177bed9d31e964ccd83905c6f8cb7c12d9c6dbfcbd3aabc528f7b36f9b13831d578c9053f67b4c2fc415783641adc9ac5239a42bc39b0203010001",
+                    "sender_address": "30819f300d06092a864886f70d010101050003818d0030818902818100b0fb95698e65f51ad751cd12e045b12ec3709e3abaf23e16126c6af391ac84452ab7468937304fc06c37f88c2c0d71bfed06498716c53db029a90f91b1df061ffe272ecee3355d415d66a7f847bb6b0299e57c831d979b250b2ce8af78d7b80f73c2334dc307a9e20e685196b9fa1a0c804ba25dc821835cd1c2525412e715590203010001"
+                },
+                {
+                    "amount": 10,
+                    "receiver_address": "6a3941dd0ab54056a695c7b7e3568292",
+                    "sender_address": "the blockchain"
+                }
+            ]
+        }
+    ],
+    "msg": "The Blockchain has been replaced"
+}
+
+# mine all the transactions
+/mine
+
+{
+    "hash": "0000c44476fd603e1ef816d074172fde4849d2a8f09fb6fa4100809ebb2f162a",
+    "msg": "New block forged",
+    "nonce": 86354,
+    "previous_hash": "19d6a9f593d8ab5f8434d211047f68af9bbb9130b76f33c87946fb3946f80577",
+    "transactions": [
+        {
+            "amount": 10,
+            "receiver_address": "30819f300d06092a864886f70d010101050003818d0030818902818100a6ad9a53fcc56d18757e5d46f9b484e75a60064265b1255b4fa1e4f4c99fa895c4332d9ea7071166f9e05214a144edc5ee95b3a080d69d24f9601d85be99dc35d7c04d3860d236b8f577177bed9d31e964ccd83905c6f8cb7c12d9c6dbfcbd3aabc528f7b36f9b13831d578c9053f67b4c2fc415783641adc9ac5239a42bc39b0203010001",
+            "sender_address": "30819f300d06092a864886f70d010101050003818d0030818902818100b0fb95698e65f51ad751cd12e045b12ec3709e3abaf23e16126c6af391ac84452ab7468937304fc06c37f88c2c0d71bfed06498716c53db029a90f91b1df061ffe272ecee3355d415d66a7f847bb6b0299e57c831d979b250b2ce8af78d7b80f73c2334dc307a9e20e685196b9fa1a0c804ba25dc821835cd1c2525412e715590203010001"
+        },
+        {
+            "amount": 10,
+            "receiver_address": "6a3941dd0ab54056a695c7b7e3568292",
+            "sender_address": "the blockchain"
+        }
+    ]
+}
+
+References
+  - API documentation modeled after GitHub's API documentation
