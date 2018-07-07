@@ -4,13 +4,13 @@ Author: Gabe Salac
 Date Due: 5/19/2018
 Teacher: Dr. Mikhail Gofman
 Usage: foreman start
-					or
-			 python3 blockchain <port-number>
+		or
+ python3 blockchain <port-number>
 Description: A simple blockchain implementation. Features include verification of transactions, Mining, Broadcasting
-						Transactions, Broadcasting mined blocks, and consensus for spoofed blocks
+	     Transactions, Broadcasting mined blocks, and consensus for spoofed blocks
 References: https://www.ibm.com/developerworks/cloud/library/cl-develop-blockchain-app-in-python/index.html
-						https://hackernoon.com/learn-blockchains-by-building-one-117428612f46
-						https://www.youtube.com/watch?v=zVqczFZr124&t=2s
+	    https://hackernoon.com/learn-blockchains-by-building-one-117428612f46
+	    https://www.youtube.com/watch?v=zVqczFZr124&t=2s
 '''
 import binascii
 import datetime as date
